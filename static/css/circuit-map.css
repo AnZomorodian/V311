@@ -1,0 +1,597 @@
+/* Circuit Map Specific Styles */
+
+.circuit-map-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xl);
+}
+
+/* Circuit Controls */
+.circuit-btn {
+    background: linear-gradient(135deg, #0066ff, #0044cc);
+    border: none;
+    border-radius: var(--radius-md);
+    color: var(--f1-white);
+    padding: var(--space-sm) var(--space-lg);
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    justify-content: center;
+    min-width: 140px;
+}
+
+.circuit-btn:hover {
+    background: linear-gradient(135deg, #0044cc, #0033aa);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* Circuit Information */
+.circuit-info-section {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-xl);
+    padding: var(--space-xl);
+}
+
+.circuit-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-lg);
+}
+
+.circuit-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--f1-white);
+    margin: 0;
+}
+
+.circuit-stats {
+    display: flex;
+    gap: var(--space-xl);
+}
+
+.circuit-stat {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    color: var(--f1-light-gray);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.circuit-stat i {
+    color: var(--f1-red);
+}
+
+/* Circuit Visualization */
+.circuit-visualization-section {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-xl);
+    padding: var(--space-xl);
+}
+
+.visualization-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.map-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-lg);
+    padding: var(--space-lg);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-lg);
+}
+
+.map-control-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-md);
+    color: var(--f1-white);
+    padding: var(--space-sm) var(--space-lg);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.map-control-btn:hover {
+    background: rgba(255, 0, 0, 0.2);
+    border-color: var(--f1-red);
+}
+
+.map-control-btn.active {
+    background: var(--f1-red);
+    border-color: var(--f1-red);
+}
+
+.animation-progress {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    min-width: 300px;
+}
+
+.lap-slider {
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.2);
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.lap-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--f1-red);
+    cursor: pointer;
+}
+
+.lap-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--f1-red);
+    cursor: pointer;
+    border: none;
+}
+
+.lap-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: var(--f1-light-gray);
+    font-weight: 600;
+}
+
+.driver-selection {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.driver-selection label {
+    color: var(--f1-white);
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.driver-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.driver-checkbox {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    color: var(--f1-light-gray);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.driver-checkbox:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.driver-checkbox input[type="checkbox"] {
+    accent-color: var(--f1-red);
+}
+
+/* Circuit Map Container */
+.circuit-map-container {
+    position: relative;
+    background: #000;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    min-height: 600px;
+}
+
+.circuit-svg {
+    width: 100%;
+    height: 600px;
+    background: radial-gradient(circle at center, #1a1a1a, #000);
+}
+
+/* Circuit Track Styling */
+.circuit-track {
+    fill: none;
+    stroke: #333;
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.circuit-centerline {
+    fill: none;
+    stroke: #666;
+    stroke-width: 2;
+    stroke-dasharray: 10, 5;
+}
+
+.start-finish-line {
+    stroke: #fff;
+    stroke-width: 4;
+}
+
+.sector-marker {
+    fill: var(--f1-red);
+    stroke: #fff;
+    stroke-width: 2;
+    r: 6;
+}
+
+.sector-label {
+    fill: #fff;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    text-anchor: middle;
+}
+
+/* Driver Positions */
+.driver-marker {
+    r: 8;
+    stroke: #fff;
+    stroke-width: 2;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.driver-marker:hover {
+    r: 12;
+    stroke-width: 3;
+}
+
+.driver-number {
+    fill: #fff;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    text-anchor: middle;
+    dominant-baseline: central;
+    pointer-events: none;
+}
+
+/* Telemetry Visualization */
+.telemetry-segment {
+    stroke-width: 6;
+    stroke-linecap: round;
+}
+
+.speed-high { stroke: #00ff00; }
+.speed-medium { stroke: #ffff00; }
+.speed-low { stroke: #ff0000; }
+
+.throttle-full { stroke: #00ff00; }
+.throttle-partial { stroke: #ffaa00; }
+.throttle-none { stroke: #666; }
+
+.brake-heavy { stroke: #ff0000; }
+.brake-light { stroke: #ff6600; }
+.brake-none { stroke: #666; }
+
+/* Map Legend */
+.map-legend {
+    position: absolute;
+    top: var(--space-lg);
+    right: var(--space-lg);
+    background: rgba(0, 0, 0, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-md);
+    padding: var(--space-md);
+    color: var(--f1-white);
+    font-size: 0.8rem;
+}
+
+.map-legend h4 {
+    margin: 0 0 var(--space-sm) 0;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: var(--space-xs);
+}
+
+.legend-items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.legend-color {
+    width: 20px;
+    height: 4px;
+    border-radius: 2px;
+}
+
+.legend-marker {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--f1-red);
+    border: 2px solid #fff;
+}
+
+/* Telemetry Analysis */
+.telemetry-analysis-section {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-xl);
+    padding: var(--space-xl);
+}
+
+.telemetry-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--space-lg);
+}
+
+.telemetry-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+}
+
+.telemetry-card h3 {
+    color: var(--f1-white);
+    font-weight: 700;
+    margin: 0 0 var(--space-md) 0;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.telemetry-card canvas {
+    width: 100%;
+    height: 200px;
+}
+
+/* Sector Analysis */
+.sector-analysis {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.sector-data {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-sm);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-sm);
+}
+
+.sector-name {
+    font-weight: 700;
+    color: var(--f1-white);
+}
+
+.sector-time {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--f1-light-gray);
+}
+
+.sector-time.fastest {
+    color: var(--f1-red);
+}
+
+/* Driver Comparison */
+.driver-comparison-section {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-xl);
+    padding: var(--space-xl);
+}
+
+.driver-select {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-md);
+    color: var(--f1-white);
+    padding: var(--space-sm) var(--space-md);
+    font-size: 0.9rem;
+    min-width: 150px;
+}
+
+.compare-btn {
+    background: linear-gradient(135deg, #ff6600, #cc5500);
+    border: none;
+    border-radius: var(--radius-md);
+    color: var(--f1-white);
+    padding: var(--space-sm) var(--space-lg);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.compare-btn:hover {
+    background: linear-gradient(135deg, #cc5500, #aa4400);
+    transform: translateY(-2px);
+}
+
+.comparison-controls {
+    display: flex;
+    gap: var(--space-md);
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.comparison-results {
+    margin-top: var(--space-lg);
+}
+
+.comparison-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+}
+
+.comparison-metric {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    text-align: center;
+}
+
+.comparison-metric h4 {
+    color: var(--f1-white);
+    font-weight: 700;
+    margin: 0 0 var(--space-md) 0;
+}
+
+.metric-comparison {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.driver1-metric,
+.driver2-metric {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.driver-name {
+    font-size: 0.8rem;
+    color: var(--f1-light-gray);
+    font-weight: 600;
+}
+
+.metric-value {
+    font-family: var(--font-mono);
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--f1-white);
+}
+
+.vs-indicator {
+    background: var(--f1-red);
+    color: var(--f1-white);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--radius-sm);
+    font-weight: 700;
+    font-size: 0.8rem;
+}
+
+.comparison-chart {
+    height: 300px;
+}
+
+.comparison-chart canvas {
+    width: 100%;
+    height: 100%;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .circuit-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .circuit-stats {
+        justify-content: center;
+    }
+    
+    .map-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .animation-progress {
+        min-width: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .circuit-svg {
+        height: 400px;
+    }
+    
+    .map-legend {
+        position: static;
+        margin-top: var(--space-md);
+    }
+    
+    .telemetry-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .comparison-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .metric-comparison {
+        flex-direction: column;
+        gap: var(--space-sm);
+    }
+    
+    .vs-indicator {
+        align-self: center;
+    }
+}
+
+/* Animation Classes */
+.driver-marker.moving {
+    animation: pulse-move 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-move {
+    from { opacity: 0.7; }
+    to { opacity: 1; }
+}
+
+.telemetry-segment.highlighted {
+    stroke-width: 8;
+    filter: drop-shadow(0 0 6px currentColor);
+}
+
+.sector-marker.active {
+    animation: pulse-sector 1s ease-in-out infinite;
+}
+
+@keyframes pulse-sector {
+    0%, 100% { r: 6; }
+    50% { r: 10; }
+}

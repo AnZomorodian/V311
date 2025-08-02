@@ -270,3 +270,126 @@ async def get_session_summary(
     except Exception as e:
         logger.error(f"Error getting session summary: {e}")
         raise HTTPException(status_code=500, detail="Failed to retrieve session summary")
+
+@router.get("/telemetry/{year}/{round_number}/{driver_number}")
+async def get_driver_telemetry(
+    year: int,
+    round_number: int,
+    driver_number: str,
+    session_type: str = Query(default="R", description="Session type"),
+    lap_number: Optional[int] = Query(default=None, description="Specific lap number")
+) -> Dict[str, Any]:
+    """Get detailed telemetry data for a specific driver"""
+    try:
+        # Validate parameters
+        if year < 2018 or year > 2030:
+            raise HTTPException(status_code=400, detail="Invalid year")
+        if round_number < 1 or round_number > 30:
+            raise HTTPException(status_code=400, detail="Invalid round number")
+        if session_type not in ['FP1', 'FP2', 'FP3', 'Q', 'R']:
+            raise HTTPException(status_code=400, detail="Invalid session type")
+        
+        # Load session and get telemetry
+        session = f1_extractor.load_session_data(year, round_number, session_type)
+        if session is None:
+            raise HTTPException(status_code=404, detail="Session not found")
+        
+        telemetry = f1_extractor.get_driver_telemetry(session, driver_number, lap_number)
+        if not telemetry:
+            raise HTTPException(status_code=404, detail="Telemetry data not found")
+        
+        return {"telemetry": telemetry}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting telemetry for {year}/{round_number}/{driver_number}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve telemetry data")
+
+@router.get("/weather/{year}/{round_number}")
+async def get_session_weather(
+    year: int,
+    round_number: int,
+    session_type: str = Query(default="R", description="Session type")
+) -> Dict[str, Any]:
+    """Get weather data for a session"""
+    try:
+        # Validate parameters
+        if year < 2018 or year > 2030:
+            raise HTTPException(status_code=400, detail="Invalid year")
+        if round_number < 1 or round_number > 30:
+            raise HTTPException(status_code=400, detail="Invalid round number")
+        if session_type not in ['FP1', 'FP2', 'FP3', 'Q', 'R']:
+            raise HTTPException(status_code=400, detail="Invalid session type")
+        
+        # Load session and get weather
+        session = f1_extractor.load_session_data(year, round_number, session_type)
+        if session is None:
+            raise HTTPException(status_code=404, detail="Session not found")
+        
+        weather_data = f1_extractor.get_session_weather(session)
+        return {"weather": weather_data}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting weather for {year}/{round_number}/{session_type}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve weather data")
+
+@router.get("/ai-predictions/{year}/{round_number}")
+async def get_ai_predictions(
+    year: int,
+    round_number: int,
+    session_type: str = Query(default="R", description="Session type")
+) -> Dict[str, Any]:
+    """Get AI-powered performance predictions"""
+    try:
+        # Validate parameters
+        if year < 2018 or year > 2030:
+            raise HTTPException(status_code=400, detail="Invalid year")
+        if round_number < 1 or round_number > 30:
+            raise HTTPException(status_code=400, detail="Invalid round number")
+        
+        # Load session data
+        session = f1_extractor.load_session_data(year, round_number, session_type)
+        if session is None:
+            raise HTTPException(status_code=404, detail="Session not found")
+        
+        # Generate AI predictions based on session data
+        predictions = f1_extractor.generate_ai_predictions(session)
+        return {"predictions": predictions}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error generating AI predictions for {year}/{round_number}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to generate predictions")
+
+@router.get("/pit-strategy/{year}/{round_number}")
+async def get_pit_strategy_analysis(
+    year: int,
+    round_number: int,
+    session_type: str = Query(default="R", description="Session type")
+) -> Dict[str, Any]:
+    """Get pit strategy analysis and recommendations"""
+    try:
+        # Validate parameters
+        if year < 2018 or year > 2030:
+            raise HTTPException(status_code=400, detail="Invalid year")
+        if round_number < 1 or round_number > 30:
+            raise HTTPException(status_code=400, detail="Invalid round number")
+        
+        # Load session data
+        session = f1_extractor.load_session_data(year, round_number, session_type)
+        if session is None:
+            raise HTTPException(status_code=404, detail="Session not found")
+        
+        # Generate pit strategy analysis
+        pit_analysis = f1_extractor.analyze_pit_strategies(session)
+        return {"pit_strategy": pit_analysis}
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error analyzing pit strategies for {year}/{round_number}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to analyze pit strategies")

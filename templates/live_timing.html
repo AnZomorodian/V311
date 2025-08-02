@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Timing - F1 Analytics Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/live-timing.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <a href="/" class="logo">
+                <i class="fas fa-flag-checkered logo-icon"></i>
+                F1 Analytics
+            </a>
+            <ul class="nav-links">
+                <li><a href="/" class="nav-link">Dashboard</a></li>
+                <li><a href="/analysis" class="nav-link">Analysis</a></li>
+                <li><a href="/live-timing" class="nav-link active">Live Timing</a></li>
+                <li><a href="/circuit-map" class="nav-link">Circuit Map</a></li>
+                <li><a href="/about" class="nav-link">About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <i class="fas fa-stopwatch"></i>
+                    Live F1 Timing Tower
+                </h1>
+                <p class="hero-subtitle">
+                    Real-time race positions, lap times, and sector analysis
+                </p>
+                <div class="live-status">
+                    <span class="status-indicator" id="liveStatus">
+                        <i class="fas fa-circle"></i>
+                        <span id="statusText">Initializing...</span>
+                    </span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Session Controls -->
+        <section class="controls-section">
+            <div class="controls-container">
+                <div class="control-group">
+                    <label for="liveSeasonSelect" class="control-label">
+                        <i class="fas fa-calendar"></i> Season
+                    </label>
+                    <select id="liveSeasonSelect" class="control-select">
+                        {% for season in seasons %}
+                        <option value="{{ season }}" {% if season == current_season %}selected{% endif %}>
+                            {{ season }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="liveEventSelect" class="control-label">
+                        <i class="fas fa-map-marker-alt"></i> Grand Prix
+                    </label>
+                    <select id="liveEventSelect" class="control-select">
+                        <option value="">Select Grand Prix...</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="liveSessionSelect" class="control-label">
+                        <i class="fas fa-play"></i> Session
+                    </label>
+                    <select id="liveSessionSelect" class="control-select">
+                        <option value="R">Race</option>
+                        <option value="Q">Qualifying</option>
+                        <option value="FP3">FP3</option>
+                        <option value="FP2">FP2</option>
+                        <option value="FP1">FP1</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <button id="startLiveTimingBtn" class="live-btn">
+                        <i class="fas fa-play"></i>
+                        Start Live Timing
+                    </button>
+                    <button id="stopLiveTimingBtn" class="live-btn secondary" style="display: none;">
+                        <i class="fas fa-pause"></i>
+                        Pause
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Live Timing Display -->
+        <div id="liveTimingContent" class="live-timing-content" style="display: none;">
+            <!-- Timing Tower -->
+            <section class="timing-tower-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-list-ol"></i>
+                        Live Timing Tower
+                    </h2>
+                    <div class="timing-controls">
+                        <button id="sortByPosition" class="sort-btn active" data-sort="position">
+                            <i class="fas fa-sort-numeric-down"></i> Position
+                        </button>
+                        <button id="sortByGap" class="sort-btn" data-sort="gap">
+                            <i class="fas fa-clock"></i> Gap
+                        </button>
+                        <button id="sortByLastLap" class="sort-btn" data-sort="lastlap">
+                            <i class="fas fa-stopwatch"></i> Last Lap
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="timing-tower" id="timingTower">
+                    <!-- Dynamic content populated by JavaScript -->
+                </div>
+            </section>
+
+            <!-- Live Sector Times -->
+            <section class="live-sectors-section">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="fas fa-route"></i>
+                        Live Sector Times
+                    </h3>
+                </div>
+                
+                <div class="sectors-grid">
+                    <div class="sector-column">
+                        <h4 class="sector-title">Sector 1</h4>
+                        <div id="sector1Times" class="sector-times">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+                    <div class="sector-column">
+                        <h4 class="sector-title">Sector 2</h4>
+                        <div id="sector2Times" class="sector-times">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+                    <div class="sector-column">
+                        <h4 class="sector-title">Sector 3</h4>
+                        <div id="sector3Times" class="sector-times">
+                            <!-- Dynamic content -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Race Statistics -->
+            <section class="race-stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-flag"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="currentLap">0</div>
+                            <div class="stat-label">Current Lap</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="fastestLap">--:--.---</div>
+                            <div class="stat-label">Fastest Lap</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="raceLeader">TBD</div>
+                            <div class="stat-label">Race Leader</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-thermometer-half"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="trackTemp">--°C</div>
+                            <div class="stat-label">Track Temp</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Error and Loading States -->
+        <div id="liveTimingError" class="error-container" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span class="error-text"></span>
+        </div>
+
+        <div id="liveTimingLoading" class="loading-container" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Loading live timing data...</p>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="/static/js/dashboard.js"></script>
+    <script src="/static/js/live-timing.js"></script>
+</body>
+</html>

@@ -1,0 +1,418 @@
+/* Live Timing Specific Styles */
+
+.live-status {
+    margin-top: var(--space-lg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm) var(--space-lg);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.status-indicator.live {
+    background: rgba(0, 255, 0, 0.2);
+    border-color: #00ff00;
+    color: #00ff00;
+}
+
+.status-indicator.live .fas {
+    animation: pulse-live 1.5s infinite;
+}
+
+@keyframes pulse-live {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.status-indicator.paused {
+    background: rgba(255, 255, 0, 0.2);
+    border-color: #ffff00;
+    color: #ffff00;
+}
+
+.status-indicator.error {
+    background: rgba(255, 0, 0, 0.2);
+    border-color: #ff0000;
+    color: #ff0000;
+}
+
+/* Live Timing Controls */
+.live-btn {
+    background: linear-gradient(135deg, #00ff00, #00cc00);
+    border: none;
+    border-radius: var(--radius-md);
+    color: var(--f1-black);
+    padding: var(--space-sm) var(--space-lg);
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    justify-content: center;
+    min-width: 140px;
+}
+
+.live-btn:hover {
+    background: linear-gradient(135deg, #00cc00, #009900);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.live-btn.secondary {
+    background: linear-gradient(135deg, #ff6600, #cc5500);
+    color: var(--f1-white);
+}
+
+.live-btn.secondary:hover {
+    background: linear-gradient(135deg, #cc5500, #aa4400);
+}
+
+/* Live Timing Content */
+.live-timing-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xl);
+}
+
+/* Timing Tower */
+.timing-tower-section {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-xl);
+    padding: var(--space-xl);
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-lg);
+    flex-wrap: wrap;
+    gap: var(--space-md);
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--f1-white);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.timing-controls {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.sort-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-md);
+    color: var(--f1-light-gray);
+    padding: var(--space-xs) var(--space-md);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.sort-btn:hover,
+.sort-btn.active {
+    background: rgba(255, 0, 0, 0.2);
+    border-color: var(--f1-red);
+    color: var(--f1-white);
+}
+
+/* Timing Tower Grid */
+.timing-tower {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.timing-row {
+    display: grid;
+    grid-template-columns: 50px 60px 200px 1fr 100px 100px 100px 80px;
+    gap: var(--space-md);
+    align-items: center;
+    padding: var(--space-sm) var(--space-md);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-md);
+    border-left: 4px solid transparent;
+    transition: all var(--transition-fast);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+}
+
+.timing-row:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.timing-row.leader {
+    border-left-color: #ffd700;
+    background: rgba(255, 215, 0, 0.1);
+}
+
+.timing-row.gaining {
+    border-left-color: #00ff00;
+}
+
+.timing-row.losing {
+    border-left-color: #ff6600;
+}
+
+.position {
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--f1-white);
+    text-align: center;
+}
+
+.driver-number {
+    background: var(--f1-red);
+    color: var(--f1-white);
+    border-radius: var(--radius-sm);
+    padding: var(--space-xs);
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.driver-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.driver-name {
+    font-weight: 700;
+    color: var(--f1-white);
+}
+
+.driver-team {
+    font-size: 0.8rem;
+    color: var(--f1-light-gray);
+}
+
+.gap-time {
+    font-weight: 600;
+    color: var(--f1-light-gray);
+}
+
+.gap-time.leader {
+    color: #ffd700;
+}
+
+.last-lap {
+    font-weight: 600;
+}
+
+.last-lap.personal-best {
+    color: #ffd700;
+    font-weight: 800;
+}
+
+.last-lap.sector-best {
+    color: #ff00ff;
+    font-weight: 800;
+}
+
+.sector-times {
+    display: flex;
+    gap: var(--space-xs);
+}
+
+.sector-time {
+    padding: 2px 4px;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--f1-light-gray);
+}
+
+.sector-time.fastest {
+    background: #ff00ff;
+    color: var(--f1-white);
+}
+
+.sector-time.personal-best {
+    background: #ffd700;
+    color: var(--f1-black);
+}
+
+.tyre-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    font-size: 0.8rem;
+}
+
+.tyre-compound {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.7rem;
+    color: var(--f1-black);
+}
+
+.tyre-compound.soft {
+    background: #ff0000;
+}
+
+.tyre-compound.medium {
+    background: #ffff00;
+}
+
+.tyre-compound.hard {
+    background: #ffffff;
+}
+
+.tyre-compound.intermediate {
+    background: #00ff00;
+}
+
+.tyre-compound.wet {
+    background: #0000ff;
+    color: var(--f1-white);
+}
+
+/* Live Sectors */
+.live-sectors-section {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-xl);
+    padding: var(--space-xl);
+}
+
+.sectors-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-xl);
+}
+
+.sector-column {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+}
+
+.sector-title {
+    text-align: center;
+    color: var(--f1-white);
+    font-weight: 700;
+    margin-bottom: var(--space-md);
+    padding-bottom: var(--space-sm);
+    border-bottom: 2px solid var(--f1-red);
+}
+
+.sector-times {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.sector-time-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-xs) var(--space-sm);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+}
+
+.sector-time-entry.fastest {
+    background: rgba(255, 0, 255, 0.3);
+    border: 1px solid #ff00ff;
+}
+
+.sector-time-entry.personal-best {
+    background: rgba(255, 215, 0, 0.3);
+    border: 1px solid #ffd700;
+}
+
+/* Race Statistics */
+.race-stats-section {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--radius-xl);
+    padding: var(--space-xl);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-lg);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .timing-row {
+        grid-template-columns: 40px 50px 180px 1fr 90px 90px 60px;
+        font-size: 0.8rem;
+    }
+    
+    .sectors-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-lg);
+    }
+}
+
+@media (max-width: 768px) {
+    .timing-row {
+        grid-template-columns: 30px 40px 150px 1fr 70px;
+        gap: var(--space-sm);
+    }
+    
+    .sector-times,
+    .tyre-info {
+        display: none;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .timing-controls {
+        justify-content: center;
+    }
+}
+
+/* Animation for live updates */
+.timing-row.updated {
+    animation: highlight-update 0.5s ease-out;
+}
+
+@keyframes highlight-update {
+    0% {
+        background: rgba(0, 255, 0, 0.3);
+        transform: scale(1.02);
+    }
+    100% {
+        background: rgba(255, 255, 255, 0.05);
+        transform: scale(1);
+    }
+}

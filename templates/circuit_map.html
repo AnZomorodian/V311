@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Circuit Map - F1 Analytics Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/circuit-map.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <a href="/" class="logo">
+                <i class="fas fa-flag-checkered logo-icon"></i>
+                F1 Analytics
+            </a>
+            <ul class="nav-links">
+                <li><a href="/" class="nav-link">Dashboard</a></li>
+                <li><a href="/analysis" class="nav-link">Analysis</a></li>
+                <li><a href="/live-timing" class="nav-link">Live Timing</a></li>
+                <li><a href="/circuit-map" class="nav-link active">Circuit Map</a></li>
+                <li><a href="/about" class="nav-link">About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <i class="fas fa-route"></i>
+                    Interactive Circuit Map
+                </h1>
+                <p class="hero-subtitle">
+                    Real-time driver positions, telemetry data, and circuit analysis
+                </p>
+            </div>
+        </section>
+
+        <!-- Controls Section -->
+        <section class="controls-section">
+            <div class="controls-container">
+                <div class="control-group">
+                    <label for="mapSeasonSelect" class="control-label">
+                        <i class="fas fa-calendar"></i> Season
+                    </label>
+                    <select id="mapSeasonSelect" class="control-select">
+                        {% for season in seasons %}
+                        <option value="{{ season }}" {% if season == current_season %}selected{% endif %}>
+                            {{ season }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="mapEventSelect" class="control-label">
+                        <i class="fas fa-map-marker-alt"></i> Grand Prix
+                    </label>
+                    <select id="mapEventSelect" class="control-select">
+                        <option value="">Select Grand Prix...</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="mapSessionSelect" class="control-label">
+                        <i class="fas fa-stopwatch"></i> Session
+                    </label>
+                    <select id="mapSessionSelect" class="control-select">
+                        <option value="R">Race</option>
+                        <option value="Q">Qualifying</option>
+                        <option value="FP3">FP3</option>
+                        <option value="FP2">FP2</option>
+                        <option value="FP1">FP1</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="telemetryMode" class="control-label">
+                        <i class="fas fa-chart-line"></i> Telemetry
+                    </label>
+                    <select id="telemetryMode" class="control-select">
+                        <option value="speed">Speed</option>
+                        <option value="throttle">Throttle</option>
+                        <option value="brake">Brake</option>
+                        <option value="gear">Gear</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <button id="loadCircuitBtn" class="circuit-btn">
+                        <i class="fas fa-map"></i>
+                        Load Circuit
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Circuit Display -->
+        <div id="circuitMapContent" class="circuit-map-content" style="display: none;">
+            <!-- Circuit Information -->
+            <section class="circuit-info-section">
+                <div class="circuit-header">
+                    <h2 id="circuitName" class="circuit-title">Circuit Name</h2>
+                    <div class="circuit-stats">
+                        <div class="circuit-stat">
+                            <i class="fas fa-road"></i>
+                            <span id="circuitLength">0.000 km</span>
+                        </div>
+                        <div class="circuit-stat">
+                            <i class="fas fa-flag"></i>
+                            <span id="circuitLaps">0 laps</span>
+                        </div>
+                        <div class="circuit-stat">
+                            <i class="fas fa-clock"></i>
+                            <span id="circuitRecord">--:--.---</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Interactive Circuit Map -->
+            <section class="circuit-visualization-section">
+                <div class="visualization-container">
+                    <div class="map-controls">
+                        <div class="control-group">
+                            <button id="playAnimation" class="map-control-btn">
+                                <i class="fas fa-play"></i>
+                                Play
+                            </button>
+                            <button id="pauseAnimation" class="map-control-btn" style="display: none;">
+                                <i class="fas fa-pause"></i>
+                                Pause
+                            </button>
+                            <button id="resetAnimation" class="map-control-btn">
+                                <i class="fas fa-undo"></i>
+                                Reset
+                            </button>
+                        </div>
+                        
+                        <div class="animation-progress">
+                            <input type="range" id="lapSlider" class="lap-slider" min="0" max="100" value="0">
+                            <div class="lap-info">
+                                <span>Lap: <span id="currentLapNumber">1</span></span>
+                                <span>Progress: <span id="lapProgress">0%</span></span>
+                            </div>
+                        </div>
+                        
+                        <div class="driver-selection">
+                            <label for="selectedDrivers">Show Drivers:</label>
+                            <div id="driverCheckboxes" class="driver-checkboxes">
+                                <!-- Dynamically populated -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- SVG Circuit Map -->
+                    <div class="circuit-map-container">
+                        <svg id="circuitSVG" class="circuit-svg">
+                            <!-- Circuit track will be drawn here -->
+                            <defs>
+                                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                    <polygon points="0 0, 10 3.5, 0 7" fill="#ffffff" />
+                                </marker>
+                            </defs>
+                            <g id="circuitTrack"></g>
+                            <g id="sectorMarkers"></g>
+                            <g id="driverPositions"></g>
+                            <g id="telemetryData"></g>
+                        </svg>
+                        
+                        <!-- Map Legend -->
+                        <div class="map-legend">
+                            <h4>Legend</h4>
+                            <div class="legend-items">
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #00ff00;"></div>
+                                    <span>High Speed</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #ffff00;"></div>
+                                    <span>Medium Speed</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-color" style="background: #ff0000;"></div>
+                                    <span>Low Speed</span>
+                                </div>
+                                <div class="legend-item">
+                                    <div class="legend-marker driver-marker"></div>
+                                    <span>Driver Position</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Telemetry Analysis -->
+            <section class="telemetry-analysis-section">
+                <div class="telemetry-grid">
+                    <div class="telemetry-card">
+                        <h3>Speed Profile</h3>
+                        <canvas id="speedChart"></canvas>
+                    </div>
+                    <div class="telemetry-card">
+                        <h3>Throttle & Brake</h3>
+                        <canvas id="throttleBrakeChart"></canvas>
+                    </div>
+                    <div class="telemetry-card">
+                        <h3>Gear Changes</h3>
+                        <canvas id="gearChart"></canvas>
+                    </div>
+                    <div class="telemetry-card">
+                        <h3>Sector Analysis</h3>
+                        <div id="sectorAnalysis" class="sector-analysis">
+                            <!-- Sector data will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Driver Comparison -->
+            <section class="driver-comparison-section">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="fas fa-users"></i>
+                        Driver Comparison
+                    </h3>
+                    <div class="comparison-controls">
+                        <select id="driver1Select" class="driver-select">
+                            <option value="">Select Driver 1</option>
+                        </select>
+                        <select id="driver2Select" class="driver-select">
+                            <option value="">Select Driver 2</option>
+                        </select>
+                        <button id="compareDriversBtn" class="compare-btn">
+                            <i class="fas fa-balance-scale"></i>
+                            Compare
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="comparisonResults" class="comparison-results" style="display: none;">
+                    <div class="comparison-grid">
+                        <div class="comparison-metric">
+                            <h4>Best Lap Time</h4>
+                            <div class="metric-comparison">
+                                <div class="driver1-metric">
+                                    <span class="driver-name" id="driver1Name">Driver 1</span>
+                                    <span class="metric-value" id="driver1BestLap">--:--.---</span>
+                                </div>
+                                <div class="vs-indicator">VS</div>
+                                <div class="driver2-metric">
+                                    <span class="driver-name" id="driver2Name">Driver 2</span>
+                                    <span class="metric-value" id="driver2BestLap">--:--.---</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comparison-metric">
+                            <h4>Average Speed</h4>
+                            <div class="metric-comparison">
+                                <div class="driver1-metric">
+                                    <span class="metric-value" id="driver1AvgSpeed">--- km/h</span>
+                                </div>
+                                <div class="vs-indicator">VS</div>
+                                <div class="driver2-metric">
+                                    <span class="metric-value" id="driver2AvgSpeed">--- km/h</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="comparison-metric">
+                            <h4>Top Speed</h4>
+                            <div class="metric-comparison">
+                                <div class="driver1-metric">
+                                    <span class="metric-value" id="driver1TopSpeed">--- km/h</span>
+                                </div>
+                                <div class="vs-indicator">VS</div>
+                                <div class="driver2-metric">
+                                    <span class="metric-value" id="driver2TopSpeed">--- km/h</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="comparison-chart">
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Error and Loading States -->
+        <div id="circuitMapError" class="error-container" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span class="error-text"></span>
+        </div>
+
+        <div id="circuitMapLoading" class="loading-container" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Loading circuit data...</p>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="/static/js/dashboard.js"></script>
+    <script src="/static/js/circuit-map.js"></script>
+</body>
+</html>

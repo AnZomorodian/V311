@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Analysis - F1 Analytics Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="/static/css/weather-analysis.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <a href="/" class="logo">
+                <i class="fas fa-flag-checkered logo-icon"></i>
+                F1 Analytics
+            </a>
+            <ul class="nav-links">
+                <li><a href="/" class="nav-link">Dashboard</a></li>
+                <li><a href="/analysis" class="nav-link">Analysis</a></li>
+                <li><a href="/live-timing" class="nav-link">Live Timing</a></li>
+                <li><a href="/circuit-map" class="nav-link">Circuit Map</a></li>
+                <li><a href="/weather-analysis" class="nav-link active">Weather Analysis</a></li>
+                <li><a href="/about" class="nav-link">About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <i class="fas fa-cloud-rain"></i>
+                    Weather Impact Analysis
+                </h1>
+                <p class="hero-subtitle">
+                    AI-powered analysis of weather conditions on F1 performance and strategy
+                </p>
+            </div>
+        </section>
+
+        <!-- Controls Section -->
+        <section class="controls-section">
+            <div class="controls-container">
+                <div class="control-group">
+                    <label for="weatherSeasonSelect" class="control-label">
+                        <i class="fas fa-calendar"></i> Season
+                    </label>
+                    <select id="weatherSeasonSelect" class="control-select">
+                        {% for season in seasons %}
+                        <option value="{{ season }}" {% if season == current_season %}selected{% endif %}>
+                            {{ season }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="weatherEventSelect" class="control-label">
+                        <i class="fas fa-map-marker-alt"></i> Grand Prix
+                    </label>
+                    <select id="weatherEventSelect" class="control-select">
+                        <option value="">Select Grand Prix...</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="weatherSessionSelect" class="control-label">
+                        <i class="fas fa-stopwatch"></i> Session
+                    </label>
+                    <select id="weatherSessionSelect" class="control-select">
+                        <option value="R">Race</option>
+                        <option value="Q">Qualifying</option>
+                        <option value="FP3">FP3</option>
+                        <option value="FP2">FP2</option>
+                        <option value="FP1">FP1</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <button id="analyzeWeatherBtn" class="weather-btn">
+                        <i class="fas fa-chart-line"></i>
+                        Analyze Weather Impact
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Weather Analysis Content -->
+        <div id="weatherAnalysisContent" class="weather-analysis-content" style="display: none;">
+            <!-- Current Weather Conditions -->
+            <section class="current-weather-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <i class="fas fa-thermometer-half"></i>
+                        Current Weather Conditions
+                    </h2>
+                </div>
+                
+                <div class="weather-grid">
+                    <div class="weather-card">
+                        <div class="weather-icon">
+                            <i class="fas fa-thermometer-half"></i>
+                        </div>
+                        <div class="weather-info">
+                            <div class="weather-value" id="airTemp">--°C</div>
+                            <div class="weather-label">Air Temperature</div>
+                        </div>
+                    </div>
+                    
+                    <div class="weather-card">
+                        <div class="weather-icon">
+                            <i class="fas fa-road"></i>
+                        </div>
+                        <div class="weather-info">
+                            <div class="weather-value" id="trackTemp">--°C</div>
+                            <div class="weather-label">Track Temperature</div>
+                        </div>
+                    </div>
+                    
+                    <div class="weather-card">
+                        <div class="weather-icon">
+                            <i class="fas fa-tint"></i>
+                        </div>
+                        <div class="weather-info">
+                            <div class="weather-value" id="humidity">--%</div>
+                            <div class="weather-label">Humidity</div>
+                        </div>
+                    </div>
+                    
+                    <div class="weather-card">
+                        <div class="weather-icon">
+                            <i class="fas fa-wind"></i>
+                        </div>
+                        <div class="weather-info">
+                            <div class="weather-value" id="windSpeed">-- km/h</div>
+                            <div class="weather-label">Wind Speed</div>
+                        </div>
+                    </div>
+                    
+                    <div class="weather-card">
+                        <div class="weather-icon">
+                            <i class="fas fa-eye"></i>
+                        </div>
+                        <div class="weather-info">
+                            <div class="weather-value" id="pressure">-- hPa</div>
+                            <div class="weather-label">Pressure</div>
+                        </div>
+                    </div>
+                    
+                    <div class="weather-card">
+                        <div class="weather-icon">
+                            <i class="fas fa-cloud-rain"></i>
+                        </div>
+                        <div class="weather-info">
+                            <div class="weather-value" id="rainfall">-- mm</div>
+                            <div class="weather-label">Rainfall</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Weather Impact Analysis -->
+            <section class="weather-impact-section">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="fas fa-brain"></i>
+                        AI Weather Impact Analysis
+                    </h3>
+                </div>
+                
+                <div class="impact-grid">
+                    <div class="impact-card grip-impact">
+                        <h4>Tire Grip Analysis</h4>
+                        <div class="impact-visualization">
+                            <canvas id="gripImpactChart"></canvas>
+                        </div>
+                        <div class="impact-summary">
+                            <div class="impact-score" id="gripScore">85%</div>
+                            <div class="impact-description" id="gripDescription">
+                                High track temperatures provide excellent grip for slick tires
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="impact-card strategy-impact">
+                        <h4>Strategy Recommendations</h4>
+                        <div class="strategy-list" id="strategyRecommendations">
+                            <div class="strategy-item">
+                                <i class="fas fa-circle-dot"></i>
+                                <span>Medium tire compound optimal for current conditions</span>
+                            </div>
+                            <div class="strategy-item">
+                                <i class="fas fa-circle-dot"></i>
+                                <span>Two-stop strategy recommended due to high tire degradation</span>
+                            </div>
+                            <div class="strategy-item">
+                                <i class="fas fa-circle-dot"></i>
+                                <span>Monitor wind conditions for DRS effectiveness</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="impact-card performance-impact">
+                        <h4>Performance Impact</h4>
+                        <div class="performance-metrics">
+                            <div class="metric">
+                                <span class="metric-label">Lap Time Impact:</span>
+                                <span class="metric-value" id="lapTimeImpact">+0.5s</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Fuel Consumption:</span>
+                                <span class="metric-value" id="fuelImpact">+2%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">Tire Wear Rate:</span>
+                                <span class="metric-value" id="tireWearImpact">+15%</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-label">DRS Benefit:</span>
+                                <span class="metric-value" id="drsImpact">-10%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Weather Timeline -->
+            <section class="weather-timeline-section">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="fas fa-clock"></i>
+                        Session Weather Timeline
+                    </h3>
+                </div>
+                
+                <div class="timeline-container">
+                    <canvas id="weatherTimelineChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Comparative Analysis -->
+            <section class="comparative-analysis-section">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="fas fa-balance-scale"></i>
+                        Weather vs Performance Correlation
+                    </h3>
+                </div>
+                
+                <div class="comparison-grid">
+                    <div class="comparison-chart">
+                        <h4>Temperature vs Lap Times</h4>
+                        <canvas id="tempLapTimeChart"></canvas>
+                    </div>
+                    
+                    <div class="comparison-chart">
+                        <h4>Wind Speed vs Straight-Line Speed</h4>
+                        <canvas id="windSpeedChart"></canvas>
+                    </div>
+                    
+                    <div class="comparison-chart">
+                        <h4>Humidity vs Tire Degradation</h4>
+                        <canvas id="humidityTireChart"></canvas>
+                    </div>
+                    
+                    <div class="comparison-chart">
+                        <h4>Track Temperature vs Grip Levels</h4>
+                        <canvas id="trackTempGripChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Weather Forecast -->
+            <section class="weather-forecast-section">
+                <div class="section-header">
+                    <h3 class="section-title">
+                        <i class="fas fa-cloud-sun"></i>
+                        Race Weekend Forecast
+                    </h3>
+                </div>
+                
+                <div class="forecast-timeline">
+                    <div class="forecast-day" id="fp1Forecast">
+                        <div class="forecast-header">
+                            <h4>FP1 & FP2</h4>
+                            <div class="forecast-date">Friday</div>
+                        </div>
+                        <div class="forecast-conditions">
+                            <div class="forecast-icon">
+                                <i class="fas fa-sun"></i>
+                            </div>
+                            <div class="forecast-temp">28°C</div>
+                            <div class="forecast-desc">Sunny, light winds</div>
+                        </div>
+                    </div>
+                    
+                    <div class="forecast-day" id="fp3QualifyForecast">
+                        <div class="forecast-header">
+                            <h4>FP3 & Qualifying</h4>
+                            <div class="forecast-date">Saturday</div>
+                        </div>
+                        <div class="forecast-conditions">
+                            <div class="forecast-icon">
+                                <i class="fas fa-cloud"></i>
+                            </div>
+                            <div class="forecast-temp">26°C</div>
+                            <div class="forecast-desc">Partly cloudy</div>
+                        </div>
+                    </div>
+                    
+                    <div class="forecast-day" id="raceForecast">
+                        <div class="forecast-header">
+                            <h4>Race Day</h4>
+                            <div class="forecast-date">Sunday</div>
+                        </div>
+                        <div class="forecast-conditions">
+                            <div class="forecast-icon">
+                                <i class="fas fa-cloud-rain"></i>
+                            </div>
+                            <div class="forecast-temp">24°C</div>
+                            <div class="forecast-desc">Light rain possible</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Error and Loading States -->
+        <div id="weatherAnalysisError" class="error-container" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span class="error-text"></span>
+        </div>
+
+        <div id="weatherAnalysisLoading" class="loading-container" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Analyzing weather impact...</p>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="/static/js/dashboard.js"></script>
+    <script src="/static/js/weather-analysis.js"></script>
+</body>
+</html>

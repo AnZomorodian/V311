@@ -73,6 +73,44 @@ async def analysis(request: Request):
             "seasons": []
         })
 
+@app.get("/live-timing", response_class=HTMLResponse)
+async def live_timing(request: Request):
+    """Live timing page"""
+    try:
+        seasons = f1_extractor.get_available_seasons()
+        current_season = max(seasons) if seasons else 2025
+        return templates.TemplateResponse("live_timing.html", {
+            "request": request,
+            "seasons": seasons,
+            "current_season": current_season
+        })
+    except Exception as e:
+        logger.error(f"Error loading live timing page: {e}")
+        return templates.TemplateResponse("live_timing.html", {
+            "request": request,
+            "seasons": [2024, 2025],
+            "current_season": 2025
+        })
+
+@app.get("/circuit-map", response_class=HTMLResponse)
+async def circuit_map(request: Request):
+    """Circuit map visualization page"""
+    try:
+        seasons = f1_extractor.get_available_seasons()
+        current_season = max(seasons) if seasons else 2025
+        return templates.TemplateResponse("circuit_map.html", {
+            "request": request,
+            "seasons": seasons,
+            "current_season": current_season
+        })
+    except Exception as e:
+        logger.error(f"Error loading circuit map page: {e}")
+        return templates.TemplateResponse("circuit_map.html", {
+            "request": request,
+            "seasons": [2024, 2025],
+            "current_season": 2025
+        })
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
