@@ -55,11 +55,17 @@ class ASGIToWSGIAdapter:
         """
         return {
             'type': 'http',
-            'method': environ.get('REQUEST_METHOD', 'GET'),
+            'asgi': {'version': '3.0', 'spec_version': '2.1'},
+            'http_version': '1.1',
+            'method': environ.get('REQUEST_METHOD', 'GET').upper(),
+            'scheme': environ.get('wsgi.url_scheme', 'http'),
             'path': environ.get('PATH_INFO', '/'),
+            'raw_path': environ.get('PATH_INFO', '/').encode(),
             'query_string': environ.get('QUERY_STRING', '').encode(),
+            'root_path': '',
             'headers': self._get_headers_from_environ(environ),
             'server': (environ.get('SERVER_NAME', 'localhost'), int(environ.get('SERVER_PORT', 80))),
+            'client': (environ.get('REMOTE_ADDR', '127.0.0.1'), int(environ.get('REMOTE_PORT', 0))),
         }
 
     def _get_headers_from_environ(self, environ: Dict[str, Any]) -> List[Tuple[bytes, bytes]]:
@@ -75,7 +81,7 @@ class ASGIToWSGIAdapter:
 
     async def _handle_request(self, scope: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Handle ASGI request and return response data
+        Handle ASGI request by actually calling the FastAPI application
         """
         response_data = {
             'status': '200 OK',
@@ -84,66 +90,75 @@ class ASGIToWSGIAdapter:
         }
         
         try:
-            # For basic routes, provide simple responses
-            path = scope.get('path', '/')
+            # Create proper ASGI message system
+            messages = []
             
-            if path == '/health':
-                response_data['body'] = b'{"status": "healthy", "service": "F1 Analytics Dashboard"}'
-            elif path == '/':
-                response_data['headers'] = [('Content-Type', 'text/html')]
-                html_content = '''
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <title>F1 Analytics Dashboard</title>
-                    <style>
-                        body { font-family: Arial, sans-serif; margin: 40px; background: #1a1a1a; color: white; }
-                        .container { max-width: 800px; margin: 0 auto; text-align: center; }
-                        .title { color: #ff0000; font-size: 2.5em; margin-bottom: 20px; }
-                        .subtitle { font-size: 1.2em; margin-bottom: 30px; color: #ccc; }
-                        .notice { background: #333; padding: 20px; border-radius: 10px; border-left: 4px solid #ff0000; }
-                        .btn { background: #ff0000; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 10px; }
-                        .btn:hover { background: #cc0000; }
-                    </style>
-                </head>
-                <body>
-                    <div class="container">
-                        <h1 class="title">F1 Analytics Dashboard</h1>
-                        <p class="subtitle">Professional Formula 1 Data Analysis Platform</p>
-                        
-                        <div class="notice">
-                            <h3>Server Configuration Notice</h3>
-                            <p>The application is currently running in compatibility mode with WSGI. For full functionality including interactive charts and data analysis, the server needs to be configured with an ASGI worker.</p>
-                            
-                            <p><strong>To run with full functionality:</strong></p>
-                            <p>Use: <code>uvicorn main:app --host 0.0.0.0 --port 5000</code></p>
-                            
-                            <p>Currently available endpoints:</p>
-                            <ul style="text-align: left; display: inline-block;">
-                                <li>Health check: <a href="/health" class="btn">Health</a></li>
-                                <li>Dashboard: Limited functionality</li>
-                                <li>Analysis: Limited functionality</li>
-                                <li>API endpoints: Limited functionality</li>
-                            </ul>
-                        </div>
-                        
-                        <p style="margin-top: 30px;">
-                            <a href="/health" class="btn">Test Health Endpoint</a>
-                        </p>
-                    </div>
-                </body>
-                </html>
-                '''
-                response_data['body'] = html_content.encode('utf-8')
-            else:
-                response_data['status'] = '404 Not Found'
-                response_data['body'] = b'{"error": "Endpoint not available in WSGI mode"}'
+            # Receive function to capture messages
+            async def receive():
+                return {'type': 'http.request', 'body': b'', 'more_body': False}
+            
+            # Send function to capture response
+            async def send(message):
+                messages.append(message)
+            
+            # Call the actual FastAPI application
+            await self.asgi_app(scope, receive, send)
+            
+            # Process the response messages
+            status_code = 200
+            headers = []
+            body = b''
+            
+            for message in messages:
+                if message['type'] == 'http.response.start':
+                    status_code = message['status']
+                    headers = message.get('headers', [])
+                elif message['type'] == 'http.response.body':
+                    body += message.get('body', b'')
+            
+            # Convert status code to status string
+            status_text = f"{status_code} {self._get_status_text(status_code)}"
+            
+            # Convert headers format
+            wsgi_headers = []
+            for header in headers:
+                if isinstance(header, (list, tuple)) and len(header) == 2:
+                    name = header[0].decode() if isinstance(header[0], bytes) else str(header[0])
+                    value = header[1].decode() if isinstance(header[1], bytes) else str(header[1])
+                    wsgi_headers.append((name, value))
+            
+            response_data = {
+                'status': status_text,
+                'headers': wsgi_headers,
+                'body': body
+            }
                 
         except Exception as e:
             response_data['status'] = '500 Internal Server Error'
+            response_data['headers'] = [('Content-Type', 'application/json')]
             response_data['body'] = f'{{"error": "Internal server error: {str(e)}"}}'.encode()
         
         return response_data
+    
+    def _get_status_text(self, status_code: int) -> str:
+        """Get status text for HTTP status code"""
+        status_texts = {
+            200: 'OK',
+            201: 'Created',
+            204: 'No Content',
+            301: 'Moved Permanently',
+            302: 'Found',
+            304: 'Not Modified',
+            400: 'Bad Request',
+            401: 'Unauthorized',
+            403: 'Forbidden',
+            404: 'Not Found',
+            405: 'Method Not Allowed',
+            500: 'Internal Server Error',
+            502: 'Bad Gateway',
+            503: 'Service Unavailable'
+        }
+        return status_texts.get(status_code, 'Unknown')
 
 
 # Create the WSGI application

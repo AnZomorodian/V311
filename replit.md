@@ -4,6 +4,16 @@
 
 The F1 Analytics Dashboard is a professional Formula 1 data analysis platform built with FastAPI and modern web technologies. It provides comprehensive insights into racing performance through real-time telemetry data, lap-by-lap analysis, and advanced visualization tools. The application leverages the FastF1 library to extract official F1 timing data and presents it through an intuitive web interface with interactive charts and analytics.
 
+## Recent Changes (August 2, 2025)
+
+✅ **RESOLVED: Complete application functionality restored**
+- Fixed FastAPI compatibility with gunicorn WSGI deployment environment
+- Created custom ASGI-to-WSGI adapter for seamless server compatibility
+- All pages now working: Dashboard, Analysis, About
+- All API endpoints operational with real F1 data integration
+- Successfully serving 2018-2025 season data with complete race calendars
+- Application now fully functional on port 5000 with stable performance
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
