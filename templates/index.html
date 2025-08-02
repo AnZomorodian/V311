@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Analytics Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <a href="/" class="logo">
+                <i class="fas fa-flag-checkered logo-icon"></i>
+                F1 Analytics
+            </a>
+            <ul class="nav-links">
+                <li><a href="/" class="nav-link active">Dashboard</a></li>
+                <li><a href="/analysis" class="nav-link">Analysis</a></li>
+                <li><a href="/about" class="nav-link">About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <i class="fas fa-racing-flag"></i>
+                    F1 Analytics Dashboard
+                </h1>
+                <p class="hero-subtitle">
+                    Professional Formula 1 data analysis with real-time telemetry and comprehensive race insights
+                </p>
+            </div>
+        </section>
+
+        <!-- Controls Section -->
+        <section class="controls-section">
+            <div class="controls-container">
+                <div class="control-group">
+                    <label for="seasonSelect" class="control-label">
+                        <i class="fas fa-calendar"></i> Season
+                    </label>
+                    <select id="seasonSelect" class="control-select">
+                        {% for season in seasons %}
+                        <option value="{{ season }}" {% if season == current_season %}selected{% endif %}>
+                            {{ season }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="eventSelect" class="control-label">
+                        <i class="fas fa-map-marker-alt"></i> Grand Prix
+                    </label>
+                    <select id="eventSelect" class="control-select">
+                        <option value="">Select Grand Prix...</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="sessionSelect" class="control-label">
+                        <i class="fas fa-stopwatch"></i> Session
+                    </label>
+                    <select id="sessionSelect" class="control-select">
+                        <option value="R">Race</option>
+                        <option value="Q">Qualifying</option>
+                        <option value="FP3">FP3</option>
+                        <option value="FP2">FP2</option>
+                        <option value="FP1">FP1</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="driverSelect" class="control-label">
+                        <i class="fas fa-user"></i> Driver
+                    </label>
+                    <select id="driverSelect" class="control-select">
+                        <option value="">Select Driver...</option>
+                    </select>
+                </div>
+                
+                <button id="loadDataBtn" class="load-btn">
+                    <i class="fas fa-download"></i>
+                    Load Data
+                </button>
+            </div>
+        </section>
+
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="loading-container" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Loading F1 data...</p>
+        </div>
+
+        <!-- Error Message -->
+        <div id="errorMessage" class="error-container" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span class="error-text"></span>
+        </div>
+
+        <!-- Dashboard Content -->
+        <div id="dashboardContent" class="dashboard-content" style="display: none;">
+            <!-- Driver Info Card -->
+            <section class="driver-info-section">
+                <div class="driver-card">
+                    <div class="driver-header">
+                        <h2 class="driver-name" id="driverName">Driver Name</h2>
+                        <span class="driver-number" id="driverNumber">#00</span>
+                    </div>
+                    <div class="driver-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Team:</span>
+                            <span class="detail-value" id="driverTeam">Team Name</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Position:</span>
+                            <span class="detail-value" id="driverPosition">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Status:</span>
+                            <span class="detail-value" id="driverStatus">-</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Statistics Grid -->
+            <section class="stats-section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-stopwatch"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="bestLapTime">--:--.---</div>
+                            <div class="stat-label">Best Lap Time</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="bestLapNumber">-</div>
+                            <div class="stat-label">Best Lap</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="avgLapTime">--:--.---</div>
+                            <div class="stat-label">Average Lap</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-flag"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalLaps">-</div>
+                            <div class="stat-label">Total Laps</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-bullseye"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="consistency">-.---s</div>
+                            <div class="stat-label">Consistency</div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="theoreticalBest">--:--.---</div>
+                            <div class="stat-label">Theoretical Best</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="charts-section">
+                <!-- Lap Times Chart -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">
+                            <i class="fas fa-chart-line"></i>
+                            Lap Times Evolution
+                        </h3>
+                    </div>
+                    <div class="chart-content">
+                        <canvas id="lapTimesChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Sector Times Chart -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">
+                            <i class="fas fa-chart-bar"></i>
+                            Sector Times Analysis
+                        </h3>
+                    </div>
+                    <div class="chart-content">
+                        <canvas id="sectorTimesChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Speed Analysis Chart -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Speed Analysis
+                        </h3>
+                    </div>
+                    <div class="chart-content">
+                        <canvas id="speedChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Tyre Strategy Chart -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">
+                            <i class="fas fa-tire"></i>
+                            Tyre Strategy
+                        </h3>
+                    </div>
+                    <div class="chart-content">
+                        <canvas id="tyreChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Data Table Section -->
+            <section class="table-section">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">
+                            <i class="fas fa-table"></i>
+                            Detailed Lap Data
+                        </h3>
+                        <button id="exportBtn" class="export-btn">
+                            <i class="fas fa-download"></i>
+                            Export CSV
+                        </button>
+                    </div>
+                    <div class="table-content">
+                        <div class="table-wrapper">
+                            <table id="lapDataTable" class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Lap</th>
+                                        <th>Time</th>
+                                        <th>S1</th>
+                                        <th>S2</th>
+                                        <th>S3</th>
+                                        <th>Compound</th>
+                                        <th>Age</th>
+                                        <th>Max Speed</th>
+                                        <th>Position</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Data will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="/static/js/dashboard.js"></script>
+    <script src="/static/js/charts.js"></script>
+</body>
+</html>

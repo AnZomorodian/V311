@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis - F1 Analytics Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation Header -->
+    <header class="header">
+        <nav class="nav-container">
+            <a href="/" class="logo">
+                <i class="fas fa-flag-checkered logo-icon"></i>
+                F1 Analytics
+            </a>
+            <ul class="nav-links">
+                <li><a href="/" class="nav-link">Dashboard</a></li>
+                <li><a href="/analysis" class="nav-link active">Analysis</a></li>
+                <li><a href="/about" class="nav-link">About</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <i class="fas fa-chart-area"></i>
+                    Advanced F1 Analysis
+                </h1>
+                <p class="hero-subtitle">
+                    Multi-driver comparison and comprehensive session analysis tools
+                </p>
+            </div>
+        </section>
+
+        <!-- Analysis Controls -->
+        <section class="controls-section">
+            <div class="controls-container">
+                <div class="control-group">
+                    <label for="analysisSeasonSelect" class="control-label">
+                        <i class="fas fa-calendar"></i> Season
+                    </label>
+                    <select id="analysisSeasonSelect" class="control-select">
+                        {% for season in seasons %}
+                        <option value="{{ season }}">{{ season }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="analysisEventSelect" class="control-label">
+                        <i class="fas fa-map-marker-alt"></i> Grand Prix
+                    </label>
+                    <select id="analysisEventSelect" class="control-select">
+                        <option value="">Select Grand Prix...</option>
+                    </select>
+                </div>
+                
+                <div class="control-group">
+                    <label for="analysisSessionSelect" class="control-label">
+                        <i class="fas fa-stopwatch"></i> Session
+                    </label>
+                    <select id="analysisSessionSelect" class="control-select">
+                        <option value="R">Race</option>
+                        <option value="Q">Qualifying</option>
+                        <option value="FP3">FP3</option>
+                        <option value="FP2">FP2</option>
+                        <option value="FP1">FP1</option>
+                    </select>
+                </div>
+                
+                <button id="loadSessionBtn" class="load-btn">
+                    <i class="fas fa-download"></i>
+                    Load Session
+                </button>
+            </div>
+        </section>
+
+        <!-- Driver Selection -->
+        <section class="driver-selection-section" id="driverSelectionSection" style="display: none;">
+            <div class="driver-selection-container">
+                <h3 class="section-title">
+                    <i class="fas fa-users"></i>
+                    Select Drivers for Comparison (Max 5)
+                </h3>
+                <div class="driver-grid" id="driverGrid">
+                    <!-- Driver cards will be populated by JavaScript -->
+                </div>
+                <button id="compareDriversBtn" class="compare-btn" style="display: none;">
+                    <i class="fas fa-chart-line"></i>
+                    Compare Selected Drivers
+                </button>
+            </div>
+        </section>
+
+        <!-- Loading Indicator -->
+        <div id="analysisLoadingIndicator" class="loading-container" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p class="loading-text">Loading analysis data...</p>
+        </div>
+
+        <!-- Error Message -->
+        <div id="analysisErrorMessage" class="error-container" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span class="error-text"></span>
+        </div>
+
+        <!-- Comparison Results -->
+        <div id="comparisonResults" class="comparison-results" style="display: none;">
+            <!-- Comparison Summary -->
+            <section class="comparison-summary">
+                <h2 class="section-title">
+                    <i class="fas fa-trophy"></i>
+                    Comparison Summary
+                </h2>
+                <div class="summary-grid" id="summaryGrid">
+                    <!-- Summary cards will be populated by JavaScript -->
+                </div>
+            </section>
+
+            <!-- Comparison Charts -->
+            <section class="comparison-charts">
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">
+                            <i class="fas fa-chart-line"></i>
+                            Lap Time Comparison
+                        </h3>
+                    </div>
+                    <div class="chart-content">
+                        <canvas id="comparisonLapChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">
+                            <i class="fas fa-chart-bar"></i>
+                            Best Lap Times
+                        </h3>
+                    </div>
+                    <div class="chart-content">
+                        <canvas id="bestLapComparisonChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">
+                            <i class="fas fa-stopwatch"></i>
+                            Sector Time Analysis
+                        </h3>
+                    </div>
+                    <div class="chart-content">
+                        <canvas id="sectorComparisonChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <h3 class="chart-title">
+                            <i class="fas fa-tachometer-alt"></i>
+                            Speed Comparison
+                        </h3>
+                    </div>
+                    <div class="chart-content">
+                        <canvas id="speedComparisonChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Detailed Statistics Table -->
+            <section class="comparison-table-section">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3 class="table-title">
+                            <i class="fas fa-table"></i>
+                            Detailed Comparison Statistics
+                        </h3>
+                        <button id="exportComparisonBtn" class="export-btn">
+                            <i class="fas fa-download"></i>
+                            Export Comparison
+                        </button>
+                    </div>
+                    <div class="table-content">
+                        <div class="table-wrapper">
+                            <table id="comparisonTable" class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Driver</th>
+                                        <th>Best Lap</th>
+                                        <th>Avg Lap</th>
+                                        <th>Total Laps</th>
+                                        <th>Consistency</th>
+                                        <th>Best S1</th>
+                                        <th>Best S2</th>
+                                        <th>Best S3</th>
+                                        <th>Max Speed</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Data will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Scripts -->
+    <script src="/static/js/dashboard.js"></script>
+    <script src="/static/js/charts.js"></script>
+    <script src="/static/js/analysis.js"></script>
+</body>
+</html>
